@@ -27,7 +27,32 @@
               </el-form>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="注册账号" name="second">注册账号</el-tab-pane>
+          <el-tab-pane label="注册账号" name="second">
+            <div class="loginform">
+              <el-form
+                :model="zc"
+                status-icon
+                :rules="regrules"
+                ref="zc"
+                label-width="100px"
+                class="demo-ruleForm"
+              >
+                <el-form-item label="账号" prop="username">
+                  <el-input v-model="zc.username" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="密码" prop="password">
+                  <el-input type="password" v-model="zc.password" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="email" prop="email">
+                  <el-input  v-model="zc.email" autocomplete="off"></el-input>
+                </el-form-item>
+
+                <el-form-item>
+                  <el-button class="submitform" type="primary" @click="reg()">注册</el-button>
+                </el-form-item>
+              </el-form>
+            </div>
+          </el-tab-pane>
         </el-tabs>
       </div>
     </div>
@@ -35,7 +60,7 @@
 </template>
 
 <script>
-import {login} from '../api/index'
+import { login, register } from "../api/index";
 export default {
   name: "",
   props: {},
@@ -46,7 +71,16 @@ export default {
         username: "",
         password: ""
       },
+      zc: {
+        username: "",
+        password: "",
+        email:''
+      },
       rules: {
+        user: [{ trigger: "blur", require: true }],
+        pwd: [{ require: true, trigger: "blur" }]
+      },
+      regrules: {
         user: [{ trigger: "blur", require: true }],
         pwd: [{ require: true, trigger: "blur" }]
       }
@@ -59,14 +93,14 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-       login(this.ruleForm).then(res=>{
-           console.log(res)
-           if(res.state.token!=''){
-             alert('登录成功')
-             localStorage.setItem("user",JSON.stringify(res))
-             this.$router.push('/index')
-           }
-       })
+          login(this.ruleForm).then(res => {
+            console.log(res);
+            if (res.state.token != "") {
+              alert("登录成功");
+              localStorage.setItem("user", JSON.stringify(res));
+              this.$router.push("/index");
+            }
+          });
         } else {
           console.log("error submit!!");
           return false;
@@ -75,6 +109,16 @@ export default {
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
+    },
+    reg() {
+      localStorage.clear('user')
+      console.log(this.zc);
+      register(this.zc).then(res => {
+        console.log(res);
+        if(res.code==0){
+          this.$message.success('注册成功请登录！')
+        }
+      });
     }
   }
 };
@@ -109,19 +153,17 @@ export default {
 .rightlogin {
   width: 62%;
   height: 100%;
-//   background: #ffff;
+  //   background: #ffff;
   padding-left: 20px;
   font-size: 30px;
   color: pink;
-  
 }
 .loginform {
   width: 80%;
   float: left;
-   margin-top: 50px;
+  margin-top: 50px;
 }
-.submitform{
-    width: 380px;
-   
+.submitform {
+  width: 380px;
 }
 </style>

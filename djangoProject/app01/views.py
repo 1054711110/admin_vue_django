@@ -87,9 +87,10 @@ class getuserlist(APIView):
             pg = PageNum()
             page_objs = pg.paginate_queryset(queryset=queryset, request=request, view=self)
             ser = sergetuserList(instance=page_objs, many=True)  # 关联数据多条
-            return Response(ser.data)
+            return Response({"code": 200, "data": ser.data, "count": userlist.objects.all().count()})
         ser = sergetuserList(instance=queryset, many=True)  # 关联数据多条
-        return Response({"code":200,"data":ser.data})
+        print(userlist.objects.all().count())
+        return Response({"code":200,"data":ser.data,"count":userlist.objects.all().count()})
 # 删除用户
 class deluser(APIView):
     def post(self,request):

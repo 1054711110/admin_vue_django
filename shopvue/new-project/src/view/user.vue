@@ -30,11 +30,11 @@
         <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
+
+          :page-sizes="[5, 10, 15, 20]"
           :page-size="100"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
+          :total="total"
         ></el-pagination>
       </div>
     </el-card>
@@ -43,7 +43,7 @@
       title="添加用户"
       :visible.sync="adddialogVisible"
       width="40%"
-      :before-close="handleClose"
+      @close="addhandleClose"
     >
       <el-form
         :model="ruleForm"
@@ -82,7 +82,8 @@
       title="修改用户"
       :visible.sync="editdialogVisible"
       width="40%"
-      :before-close="handleClose"
+      @close="handleClose"
+      
     >
       <el-form
         :model="ruleForm"
@@ -134,12 +135,16 @@ export default {
     return {
       tableData: [],
       adddialogVisible: false,
+      editdialogVisible:false,
       ruleForm: { name: "", address: "", state: true, mobile: "" },
       rules: {
         name: { required: true, message: "请输入活动名称" },
         address: { required: true, message: "请输入活动名称" },
         mobile: { required: true, message: "请输入活动名称" }
-      }
+      },
+      total:0,
+      page:1,
+      page_size:5
     };
   },
   mounted() {
@@ -150,9 +155,11 @@ export default {
   methods: {
     getuserlist() {
       let that = this;
-      getuserlist().then(res => {
+      let data={page:this.page,page_size:this.page_size}
+      getuserlist({page:this.page,page_size:this.page_size}).then(res => {
         console.log(res);
         if (res.code == 200) {
+          this.total=res.count
           this.tableData = res.data;
           this.tableData = this.tableData.map((item, index) => {
             console.log(this.formatDate(item.date));
@@ -252,7 +259,23 @@ export default {
       userupdate(this.ruleForm).then(res => {
         console.log(res);
       });
-    }
+    },
+    handleClose(){
+      this.editdialogVisible=false
+    },
+    addhandleClose(){
+        this.adddialogVisible=false
+    },
+   handleSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+        this.page_size=val
+            this.getuserlist();
+      },
+      handleCurrentChange(val) {
+        console.log(`当前页: ${val}`);
+         this.page=val
+             this.getuserlist();
+      }
   }
 };
 </script>
